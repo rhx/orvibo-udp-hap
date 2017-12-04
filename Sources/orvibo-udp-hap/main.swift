@@ -176,7 +176,7 @@ while active {
     guard count <= 0 else { continue }
     count = countDown
     guard let currentStatus = status() else {
-        system("/usr/bin/killall", "orvibo")
+        sendUDP("q\n")
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
             toUDP(status: nil)
         }
