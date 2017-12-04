@@ -9,9 +9,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/bouke/HAP.git", .branch("master")),
+        .package(url: "https://github.com/rhx/Channel.git", .branch("master")),
     ],
     targets: [
-        .target(name: "orvibo-udp-hap", dependencies: ["HAP"]),
+        .target(name: "orvibo-udp-hap", dependencies: ["HAP", "Channel"]),
     ],
     swiftLanguageVersions: [4]
 )
