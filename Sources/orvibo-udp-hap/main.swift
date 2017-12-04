@@ -27,7 +27,7 @@ var vendor = "Orvibo"
 var type = "UDP Bridge"
 var serial = "234"
 var version = "1.0.0"
-var kind = AccessoryKind.light
+var kind = AccessoryKind.outlet
 
 fileprivate func usage() -> Never {
     print("Usage: \(cmd) <options>")
