@@ -123,11 +123,13 @@ func toUDP(status value: Bool?) {
     let payload: String
     if let set = value { payload = set ? "on\n" : "off\n" }
     else { payload = "p\n" }
+    if verbosity > 1 { print("Sending \(payload)", terminator: "") }
     sendUDP(payload)
 }
 
 func fromUDP(status: Bool?) {
     DispatchQueue.main.async {
+        if verbosity > 0 { print("Status: \(String(describing: status))") }
         switch outlet {
         case let light as Accessory.Lightbulb: light.lightbulb.on.value = status
         case let outlet as Accessory.Outlet: outlet.outlet.on.value = status
