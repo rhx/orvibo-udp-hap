@@ -85,7 +85,9 @@ while let result = get(options: "c:df:h:k:l:m:n:p:qQRs:S:t:v") {
 }
 
 let fm = FileManager.default
-let config = try! customConfig ?? fm.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent(name).appendingPathComponent("configuration.json").path
+let pathURL = try! fm.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent(name)
+try? fm.createDirectory(at: pathURL, withIntermediateDirectories: true)
+let config = customConfig ?? pathURL.appendingPathComponent("configuration.json").path
 let configExists = fm.fileExists(atPath: config)
 let db = FileStorage(filename: config)
 if !configExists { RunLoop.main.run(until: Date(timeIntervalSinceNow: 2)) }
@@ -163,9 +165,9 @@ let server = try Server(device: device, port: 0)
 server.start()
 
 if alwaysPrintQR || !pinSpecified {
-    print("\nQR Code for pairing:\n")
-    print(device.setupQRCode.asText)
-    print()
+    let qr = device.setupQRCode.asBigText
+    try? qr.write(to: pathURL.appendingPathComponent("qr.txt"), atomically: true, encoding: .utf8)
+    print("\nQR Code for pairing:\n\n\(qr)\n")
 }
 
 func status() -> Bool? {
