@@ -2,7 +2,7 @@
 //  orvibo-udp-hap
 //
 //  Created by Rene Hexel on 25/11/2017.
-//  Copyright © 2017 Rene Hexel. All rights reserved.
+//  Copyright © 2017, 2018 Rene Hexel. All rights reserved.
 //
 import Foundation
 import Dispatch
@@ -22,7 +22,7 @@ var verbosity = 1                   ///< verbosity level
 var port = 14443                    ///< UDP listen port
 var outp = 14442                    ///< UDP transmit port
 var host = "127.0.0.1"              ///< Controller host
-var pin = "123-45-678"
+var pin = "123-44-321"
 var vendor = "Orvibo"
 var type = "UDP Bridge"
 var serial = "234"
