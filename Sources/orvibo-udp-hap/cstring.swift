@@ -3,7 +3,7 @@
 //  posix
 //
 //  Created by Rene Hexel on 2/08/2014.
-//  Copyright (c) 2014, 2015, 2016, 2017 Rene Hexel. All rights reserved.
+//  Copyright (c) 2014, 2015, 2016, 2017, 2018 Rene Hexel. All rights reserved.
 //
 import Foundation
 
@@ -49,10 +49,10 @@ public func convert<T>(_ cString: UnsafePointer<CChar>, using: (UnsafePointer<CC
 ///   - cString: string to convert
 ///   - using: C function to call for conversion
 /// - Returns: a new string from the pointer returned by the C function
-public func convert<T>(_ cString: UnsafePointer<CChar>, using: (UnsafeMutablePointer<CChar>!) -> UnsafeMutablePointer<T>!) -> String {
+public func convert<T>(_ cString: UnsafePointer<CChar>, using: (UnsafeMutablePointer<CChar>?) -> UnsafeMutablePointer<T>?) -> String {
     return with(cString: cString) {
-        using($0).withMemoryRebound(to: CChar.self, capacity: 1) {
+        using($0)?.withMemoryRebound(to: CChar.self, capacity: 1) {
             String(cString: $0)
-        }
+        } ?? ""
     }
 }
