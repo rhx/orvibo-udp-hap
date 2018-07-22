@@ -3,7 +3,7 @@
 //  orvibo
 //
 //  Created by Rene Hexel on 28/12/16.
-//  Copyright © 2016, 2017 Rene Hexel. All rights reserved.
+//  Copyright © 2016, 2017, 2018 Rene Hexel. All rights reserved.
 //
 import Foundation
 import Dispatch
@@ -143,7 +143,7 @@ public extension UDPSocket {
         readSource.setEventHandler {
             let data = UnsafeMutablePointer<UDPPacket>.allocate(capacity: 1)
             let size = MemoryLayout<UDPPacket>.size
-            defer { data.deallocate(capacity: 1) }
+            defer { data.deallocate() }
             var sas = sockaddr_storage()
             var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
             let s = CInt(readSource.handle)
@@ -189,7 +189,7 @@ public extension UDPSocket {
             var sas = sockaddr_storage()
             var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
             let data = UnsafeMutablePointer<CChar>.allocate(capacity: datagramSize)
-            defer { data.deallocate(capacity: datagramSize) }
+            defer { data.deallocate() }
             let s = CInt(readSource.handle)
             while true {
                 let n = withUnsafeMutablePointer(to: &sas) {
