@@ -29,7 +29,7 @@ var pinSpecified = false            ///< pin was given on the command line
 var vendor = "Orvibo"
 var type = "UDP Bridge"
 var serial = "234"
-var version = "1.1.0"
+var version = "1.2.0"
 var kind = AccessoryKind.outlet
 var customConfig: String?
 
@@ -105,8 +105,29 @@ var active = true
 signal(SIGINT) { sig in
     DispatchQueue.main.async {
         active = false
-        if verbosity > 0 {
-            fputs("Caught signal \(sig) -- stopping!\n", stderr)
+        if verbosity > 0 { fputs("Caught signal \(sig) - stopping!\n", stderr) }
+    }
+}
+
+//
+// get/set the device status
+//
+var deviceStatus: Bool? {
+    get {
+        switch accessory {
+        case let light as Accessory.Lightbulb: return light.lightbulb.on.value
+        case let outlet as Accessory.Outlet: return outlet.outlet.on.value
+        case let `switch` as Accessory.Switch: return `switch`.switch.on.value
+        default: return nil
+        }
+    }
+    set {
+        if verbosity > 0 { print("Setting \(String(describing: newValue))") }
+        switch accessory {
+        case let a as Accessory.Lightbulb: a.lightbulb.on.value = newValue
+        case let a as Accessory.Outlet:    a.outlet.on.value    = newValue
+        case let a as Accessory.Switch:    a.switch.on.value    = newValue
+        default: return
         }
     }
 }
@@ -127,13 +148,8 @@ func toUDP(status value: Bool?) {
 
 func fromUDP(status: Bool?) {
     DispatchQueue.main.async {
+        deviceStatus = status
         if verbosity > 0 { print("Status: \(String(describing: status))") }
-        switch accessory {
-        case let a as Accessory.Lightbulb: a.lightbulb.on.value = status
-        case let a as Accessory.Outlet:    a.outlet.on.value    = status
-        case let a as Accessory.Switch:    a.switch.on.value    = status
-        default: return
-        }
     }
 }
 
@@ -170,15 +186,6 @@ if alwaysPrintQR || !pinSpecified {
     print("\nQR Code for pairing:\n\n\(qr)\n")
 }
 
-func status() -> Bool? {
-    switch accessory {
-    case let light as Accessory.Lightbulb: return light.lightbulb.on.value
-    case let outlet as Accessory.Outlet: return outlet.outlet.on.value
-    case let `switch` as Accessory.Switch: return `switch`.switch.on.value
-    default: return nil
-    }
-}
-
 var readQueue = DispatchQueue(label: "orvibo.udp.read")
 let udpSource = udpIn.onString(queue: readQueue) { content, endPoint in
     let lines = content.split(separator: "\n")
@@ -189,18 +196,16 @@ let udpSource = udpIn.onString(queue: readQueue) { content, endPoint in
     }
 }
 
-fromUDP(status: nil)
-toUDP(status: nil)
-
 withExtendedLifetime([delegate]) {
-    let countDown = 60/2
+    let interval = 2.0
+    let countDown = 60/Int(interval)
     var count = countDown
     while active {
-        RunLoop.current.run(until: Date().addingTimeInterval(2))
+        RunLoop.current.run(until: Date().addingTimeInterval(interval))
         count -= 1
         guard count <= 0 else { continue }
         count = countDown
-        guard status() != nil else {
+        guard deviceStatus != nil else {
             sendUDP("q\n")
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
                 toUDP(status: nil)
